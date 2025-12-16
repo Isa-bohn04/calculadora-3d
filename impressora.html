@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Calculadora de Impressão 3D</title>
+  <style>
+    :root {
+      --bg: #0e0e10;
+      --card: #16161a;
+      --accent: #ff3d3d;
+      --text: #f5f5f5;
+      --muted: #9ca3af;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Inter, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 2.2rem;
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+      color: var(--accent);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 14px;
+      padding: 18px;
+      box-shadow: 0 0 0 1px #222;
+    }
+
+    label {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-top: 10px;
+      display: block;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin-top: 4px;
+      border-radius: 8px;
+      border: none;
+      background: #0b0b0d;
+      color: var(--text);
+      outline: none;
+    }
+
+    .result {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #0b0b0d;
+      font-size: 0.95rem;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    button {
+      grid-column: 1 / -1;
+      padding: 14px;
+      border-radius: 12px;
+      border: none;
+      background: var(--accent);
+      color: #fff;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    .total {
+      font-size: 1.4rem;
+      text-align: center;
+      background: #0b0b0d;
+      padding: 20px;
+      border-radius: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Calculadora de Custos – Impressão 3D</h1>
+
+  <div class="container">
+
+    <div class="card">
+      <h2>Dados da Peça</h2>
+      <label>Tempo de impressão (h)</label>
+      <input id="tempo" type="number" step="0.01">
+      <label>Filamento utilizado (g)</label>
+      <input id="gramas" type="number">
+    </div>
+
+    <div class="card">
+      <h2>Material</h2>
+      <label>Custo do filamento (R$/kg)</label>
+      <input id="filamentoKg" type="number">
+      <div class="result" id="custoFilamento">R$ 0,00</div>
+    </div>
+
+    <div class="card">
+      <h2>Energia</h2>
+      <label>Potência da impressora (W)</label>
+      <input id="potencia" type="number">
+      <label>Custo do kWh (R$)</label>
+      <input id="kwh" type="number" step="0.01">
+      <div class="result" id="custoEnergia">R$ 0,00</div>
+    </div>
+
+    <div class="card">
+      <h2>Custos Fixos</h2>
+      <label>Embalagem (R$)</label>
+      <input id="embalagem" type="number" value="5">
+      <label>Mão de obra (R$)</label>
+      <input id="maoObra" type="number" value="15">
+      <label>Orçamento (R$)</label>
+      <input id="orcamento" type="number" value="5">
+    </div>
+
+    <div class="card">
+      <h2>Amortização</h2>
+      <label>Valor da impressora (R$)</label>
+      <input id="valorImpressora" type="number">
+      <label>Vida útil (h)</label>
+      <input id="vidaUtil" type="number">
+      <div class="result" id="amortizacao">R$ 0,00</div>
+    </div>
+
+    <div class="card">
+      <h2>Precificação</h2>
+      <label>Falhas / perdas (%)</label>
+      <input id="falhas" type="number" value="10">
+      <label>Lucro desejado (%)</label>
+      <input id="lucro" type="number" value="30">
+    </div>
+
+    <button onclick="calcular()">Calcular custo total</button>
+
+    <div class="card full">
+      <div class="total" id="total">Custo total: R$ 0,00</div>
+      <div class="result" id="lucroValor">Lucro: R$ 0,00</div>
+      <div class="result" id="precoFinal">Preço sugerido: R$ 0,00</div>
+    </div>
+
+  </div>
+
+  </div>
+
+  <script>
+    function calcular() {
+      const tempo = Number(document.getElementById('tempo').value);
+      const gramas = Number(document.getElementById('gramas').value);
+      const filamentoKg = Number(document.getElementById('filamentoKg').value);
+      const potencia = Number(document.getElementById('potencia').value);
+      const kwh = Number(document.getElementById('kwh').value);
+      const embalagem = Number(document.getElementById('embalagem').value);
+      const maoObra = Number(document.getElementById('maoObra').value);
+      const orcamento = Number(document.getElementById('orcamento').value);
+      const valorImpressora = Number(document.getElementById('valorImpressora').value);
+      const vidaUtil = Number(document.getElementById('vidaUtil').value);
+      const falhas = Number(document.getElementById('falhas').value) / 100;
+      const lucroPerc = Number(document.getElementById('lucro').value) / 100;
+
+      const custoFilamento = (gramas / 1000) * filamentoKg;
+      const custoEnergia = ((potencia / 1000) * tempo) * kwh;
+      const amortizacao = (valorImpressora / vidaUtil) * tempo;
+
+      const subtotal = custoFilamento + custoEnergia + embalagem + maoObra + orcamento + amortizacao;
+      const custoTotal = subtotal + (subtotal * falhas);
+      const lucroValor = custoTotal * lucroPerc;
+      const total = custoTotal + lucroValor;
+
+      document.getElementById('custoFilamento').innerText = `R$ ${custoFilamento.toFixed(2)}`;
+      document.getElementById('custoEnergia').innerText = `R$ ${custoEnergia.toFixed(2)}`;
+      document.getElementById('amortizacao').innerText = `R$ ${amortizacao.toFixed(2)}`;
+      document.getElementById('total').innerText = `Custo total: R$ ${custoTotal.toFixed(2)}`;
+      document.getElementById('lucroValor').innerText = `Lucro: R$ ${lucroValor.toFixed(2)}`;
+      document.getElementById('precoFinal').innerText = `Preço sugerido: R$ ${total.toFixed(2)}`;
+    }
+  </script>
+
+</body>
+</html>
